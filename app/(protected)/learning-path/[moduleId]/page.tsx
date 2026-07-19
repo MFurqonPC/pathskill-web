@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import api from "@/lib/api";
 import type { ModuleDetailResponse } from "@/types/learning-path";
 
@@ -176,9 +177,12 @@ export default function ModuleDetailPage() {
               className="border-b border-gray-100 py-3 last:border-0"
             >
               <div className="flex justify-between items-start mb-1">
-                <p className="text-sm font-medium text-[#0B1739]">
+                <Link
+                  href={`/learning-path/${moduleId}/assignments/${assignment.id}`}
+                  className="text-sm font-medium text-[#0B1739] hover:underline"
+                >
                   {assignment.title}
-                </p>
+                </Link>
                 <span
                   className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ml-2 ${STATUS_STYLE[assignment.status]}`}
                 >
