@@ -68,7 +68,7 @@ export default function SkillMapPage() {
         <SummaryCard
           label="Tingkat Saat Ini"
           value={data.summary.current_level}
-          sub="Tingkat keterampilan rata-rata"
+          sub="Gabungan self-rating, confidence & quiz"
           color="text-blue-500"
         />
         <SummaryCard
@@ -83,6 +83,33 @@ export default function SkillMapPage() {
           sub="Poin yang perlu ditingkatkan"
           color="text-orange-500"
         />
+
+        {/* Breakdown transparansi - dari mana angka "Tingkat Saat Ini" berasal */}
+        <div className="bg-white rounded-2xl p-4 mb-3">
+          <p className="text-gray-500 text-xs mb-3">
+            Tingkat Saat Ini dihitung dari 3 sumber:
+          </p>
+          <BreakdownRow
+            label="Self-Rating (Step 1)"
+            value={`${data.summary.breakdown.self_rating.toFixed(1)} / 5`}
+          />
+          <BreakdownRow
+            label="Scenario Confidence (Step 2)"
+            value={
+              data.summary.breakdown.scenario_confidence !== null
+                ? `${data.summary.breakdown.scenario_confidence.toFixed(1)} / 5`
+                : "Belum diisi"
+            }
+          />
+          <BreakdownRow
+            label="Skill Verification Quiz (Step 3)"
+            value={
+              data.summary.breakdown.quiz_score_percentage !== null
+                ? `${data.summary.breakdown.quiz_score_percentage}% benar`
+                : "Belum diisi"
+            }
+          />
+        </div>
 
         <div className="bg-white rounded-2xl p-4 mt-2">
           <h2 className="font-bold text-[#0B1739] text-center mb-2">
@@ -119,6 +146,15 @@ export default function SkillMapPage() {
           ✨ Generate Learning Path dengan AI
         </button>
       </div>
+    </div>
+  );
+}
+
+function BreakdownRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between items-center py-1.5 text-sm">
+      <span className="text-gray-500">{label}</span>
+      <span className="text-[#0B1739] font-medium">{value}</span>
     </div>
   );
 }

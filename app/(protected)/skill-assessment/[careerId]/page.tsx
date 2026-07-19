@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
 import type { SkillAssessmentResponse, SkillItem } from "@/types/skill";
+import AssessmentStepIndicator from "@/components/AssessmentStepIndicator";
 
 const CATEGORY_LABEL: Record<string, string> = {
   core: "Core Skills",
@@ -61,7 +62,7 @@ export default function SkillAssessmentPage() {
         })),
       };
       await api.post("/skill-assessments", payload);
-      router.push("/skill-map");
+      router.push(`/skill-assessment/${careerId}/self-assess`);
     } catch {
       setError("Gagal menyimpan skill assessment. Coba lagi.");
     } finally {
@@ -92,6 +93,7 @@ export default function SkillAssessmentPage() {
     <div className="min-h-screen bg-[#0B1739] pb-32">
       <div className="max-w-md mx-auto px-5 pt-10">
         <p className="text-white/60 text-sm mb-1">PATHSKILL</p>
+        <AssessmentStepIndicator currentStep={1} />
         <h1 className="text-white text-3xl font-bold mb-2">Skill Assessment</h1>
         <p className="text-white/70 text-sm mb-6">
           Beri nilai tingkat keahlian Anda saat ini dari 1 (Pemula) hingga 5 (Pakar)
@@ -144,7 +146,7 @@ export default function SkillAssessmentPage() {
             disabled={submitting || totalRated === 0}
             className="w-full bg-blue-600 disabled:bg-blue-600/40 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2"
           >
-            {submitting ? "Menyimpan..." : "View My Skill Map"}
+            {submitting ? "Menyimpan..." : "Lanjut ke Step 2"}
             {!submitting && <span>→</span>}
           </button>
         </div>

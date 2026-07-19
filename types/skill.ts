@@ -35,6 +35,11 @@ export interface SkillMapResponse {
     current_level: number;
     required_level: number;
     skill_gap: number;
+    breakdown: {
+      self_rating: number;
+      scenario_confidence: number | null;
+      quiz_score_percentage: number | null;
+    };
   };
   chart_data: SkillMapChartItem[];
 }
