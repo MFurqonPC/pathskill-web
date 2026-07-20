@@ -24,6 +24,9 @@ export interface ModuleLesson {
   title: string;
   type: "video" | "reading" | "quiz";
   duration_minutes: number;
+  explanation: string | null;
+  example: string | null;
+  function_context: string | null;
   completed: boolean;
 }
 
