@@ -47,4 +47,8 @@ export interface ModuleDetailResponse {
   progress_percentage: number;
   lessons: ModuleLesson[];
   assignments: ModuleAssignment[];
+  // Baru: 3-5 objective, di-generate sekali via GroqService::generateLearningObjectives()
+  // dan disimpan di kolom modules.learning_objectives — bukan personalisasi per user.
+  // Optional karena modul lama yang belum di-backfill belum punya nilai ini.
+  learning_objectives?: string[];
 }

@@ -25,8 +25,18 @@ export interface SkillAssessmentResponse {
 
 export interface SkillMapChartItem {
   skill_name: string;
-  current: number;
+  current: number | null;
   required: number;
+  is_rated: boolean;
+  is_confidence_validated: boolean;
+  is_quiz_validated: boolean;
+}
+
+export interface SkillRecommendation {
+  foundation_summary: string;
+  priority_areas: string;
+  priority_skill_names: string[];
+  estimated_weeks: number;
 }
 
 export interface SkillMapResponse {
@@ -42,4 +52,5 @@ export interface SkillMapResponse {
     };
   };
   chart_data: SkillMapChartItem[];
+  recommendation: SkillRecommendation | null;
 }

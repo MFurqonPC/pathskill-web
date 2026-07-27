@@ -29,7 +29,7 @@ export function useQuizIntegrity(careerId: string, isWarmup: boolean, active: bo
         switchCountRef.current += 1;
         const baseUrl = api.defaults.baseURL ?? "";
         const token = localStorage.getItem("pathskill_token");
-        
+
         // Gunakan fetch dengan keepalive agar bisa bawa Bearer Token
         fetch(`${baseUrl}/careers/${careerId}/verification-quiz/log-tab-switch`, {
           method: "POST",

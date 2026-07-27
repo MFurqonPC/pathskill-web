@@ -28,13 +28,16 @@ export default function QuizPage() {
         `/assignments/${assignmentId}/quiz`
       );
       setQuiz(res.data);
-
       // lanjut dari soal pertama yang belum dijawab
       const firstUnanswered = res.data.questions.findIndex(
         (q) => q.answered_option_id == null
       );
       setCurrentIndex(firstUnanswered === -1 ? 0 : firstUnanswered);
-    } catch {
+    } catch (err: any) {
+      if (err?.response?.status === 404) {
+        router.replace(`/learning-path/${moduleId}/assignments/${assignmentId}`);
+        return;
+      }
       setError("Gagal memuat quiz.");
     } finally {
       setLoading(false);

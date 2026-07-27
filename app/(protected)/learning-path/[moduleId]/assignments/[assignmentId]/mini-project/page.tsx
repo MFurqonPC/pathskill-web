@@ -24,7 +24,11 @@ export default function MiniProjectPage() {
         `/assignments/${assignmentId}/mini-project`
       );
       setProject(res.data);
-    } catch {
+    } catch (err: any) {
+      if (err?.response?.status === 404) {
+        router.replace(`/learning-path/${moduleId}/assignments/${assignmentId}`);
+        return;
+      }
       setError("Gagal memuat mini project.");
     } finally {
       setLoading(false);

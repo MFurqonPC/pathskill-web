@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { LogOut } from "lucide-react";
 import api from "@/lib/api";
+import { LogoMark } from "@/components/ui/Logo";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -13,6 +15,7 @@ const NAV_LINKS = [
 
 export default function AppHeader() {
   const router = useRouter();
+  const pathname = usePathname();
   const [loggingOut, setLoggingOut] = useState(false);
 
   async function handleLogout() {
@@ -30,16 +33,29 @@ export default function AppHeader() {
     }
   }
 
+  function renderLinks(className: string) {
+    return NAV_LINKS.map((link) => {
+      const isActive = pathname === link.href;
+      return (
+        <Link
+          key={link.href}
+          href={link.href}
+          aria-current={isActive ? "page" : undefined}
+          className={`${className} ${
+            isActive ? "text-white font-semibold" : "text-white/60 hover:text-white"
+          }`}
+        >
+          {link.label}
+        </Link>
+      );
+    });
+  }
+
   return (
     <header className="bg-[#0B1739] border-b border-white/10 sticky top-0 z-40">
-      <div className="max-w-md mx-auto px-5 py-3 flex items-center justify-between">
+      <div className="max-w-md md:max-w-5xl xl:max-w-6xl mx-auto px-5 md:px-8 py-3 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="grid grid-cols-2 gap-0.5 w-6 h-6 rounded-lg overflow-hidden">
-            <div className="bg-red-500" />
-            <div className="bg-orange-500" />
-            <div className="bg-green-500" />
-            <div className="bg-teal-500" />
-          </div>
+          <LogoMark size={24} />
           <span className="text-white font-bold tracking-wide text-xs">
             PATHSKILL
           </span>
@@ -47,37 +63,22 @@ export default function AppHeader() {
 
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex items-center gap-4">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-white/60 hover:text-white text-xs"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {renderLinks("text-xs transition-colors")}
           </nav>
           <button
             onClick={handleLogout}
             disabled={loggingOut}
-            className="text-white/70 hover:text-white text-xs border border-white/20 rounded-lg px-3 py-1.5 disabled:opacity-50"
+            className="flex items-center gap-1.5 text-white/70 hover:text-white text-xs border border-white/20 rounded-lg px-3 py-1.5 disabled:opacity-50 transition-colors"
           >
+            <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
             {loggingOut ? "..." : "Logout"}
           </button>
         </div>
       </div>
 
       {/* nav mobile - tampil di bawah bar utama karena layar sempit */}
-      <nav className="sm:hidden flex items-center gap-4 px-5 pb-3 -mt-1">
-        {NAV_LINKS.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="text-white/60 text-xs"
-          >
-            {link.label}
-          </Link>
-        ))}
+      <nav className="sm:hidden flex items-center gap-4 px-5 pb-3 -mt-1 overflow-x-auto">
+        {renderLinks("text-xs whitespace-nowrap transition-colors")}
       </nav>
     </header>
   );

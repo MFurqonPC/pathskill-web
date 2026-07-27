@@ -31,11 +31,13 @@ export default function CodingExercisePage() {
         `/assignments/${assignmentId}/coding-exercise`
       );
       setExercise(res.data);
-      // lanjutin dari kode terakhir kalau sudah pernah submit, kalau belum
-      // mulai dari starter code
       setSourceCode(res.data.submitted_source_code ?? res.data.starter_code ?? "");
       setCheckedTests(new Array(res.data.test_cases.length).fill(false));
-    } catch {
+    } catch (err: any) {
+      if (err?.response?.status === 404) {
+        router.replace(`/learning-path/${moduleId}/assignments/${assignmentId}`);
+        return;
+      }
       setError("Gagal memuat latihan coding.");
     } finally {
       setLoading(false);
