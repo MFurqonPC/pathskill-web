@@ -61,7 +61,7 @@ export default function ProfileSetupPage() {
 
   return (
     <div className="min-h-screen bg-[#0B1739] pb-28 md:pb-16">
-      <div className="max-w-md md:max-w-4xl xl:max-w-5xl mx-auto px-5 md:px-8 pt-10">
+      <div className="max-w-md md:max-w-5xl xl:max-w-6xl mx-auto px-5 md:px-8 pt-10">
         <h1 className="text-white text-2xl md:text-3xl font-bold mb-1">
           Ceritakan Tentang Diri Anda
         </h1>
@@ -71,7 +71,7 @@ export default function ProfileSetupPage() {
 
         <div className="md:grid md:grid-cols-2 md:gap-6 md:items-start">
           {/* Informasi Dasar */}
-          <div className="bg-white rounded-2xl p-5 mb-4">
+          <div className="bg-white rounded-2xl p-5 mb-6">
             <h2 className="font-bold text-[#0B1739] flex items-center gap-2 mb-4">
               <User className="w-4 h-4 text-blue-600" aria-hidden="true" />
               Informasi Dasar
@@ -108,7 +108,7 @@ export default function ProfileSetupPage() {
           </div>
 
           {/* Pilih Karier Tujuan */}
-          <div className="bg-white rounded-2xl p-5 mb-4">
+          <div className="bg-white rounded-2xl p-5 mb-6">
             <h2 className="font-bold text-[#0B1739] flex items-center gap-2 mb-4">
               <Target className="w-4 h-4 text-purple-600" aria-hidden="true" />
               Pilih Karier Tujuan Anda
@@ -154,7 +154,7 @@ export default function ProfileSetupPage() {
       {/* Mobile: bar aksi menempel di bawah layar.
          Desktop: kembali jadi bagian normal dari alur konten, rata kanan. */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#0B1739] border-t border-white/10 p-4 md:static md:border-0 md:p-0 md:mt-2">
-        <div className="max-w-md md:max-w-4xl xl:max-w-5xl mx-auto md:px-8 md:flex md:justify-end">
+        <div className="max-w-md md:max-w-5xl xl:max-w-6xl mx-auto md:px-8 md:flex md:justify-end">
           <button
             onClick={handleContinue}
             disabled={submitting}

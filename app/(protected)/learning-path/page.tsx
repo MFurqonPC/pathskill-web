@@ -15,22 +15,40 @@ import {
   Target,
 } from "lucide-react";
 import api from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 import type { LearningPathResponse } from "@/types/learning-path";
 import { StatusScreen, ErrorScreen } from "@/components/ui/StatusScreen";
 
 type LearningPathErrorState =
   | { type: "no_career_goal" }
   | { type: "not_assessed"; careerGoalId: number }
+  | { type: "plan_required" }
   | { type: "technical"; message: string };
 
 export default function LearningPathPage() {
   const router = useRouter();
+  const { user: authUser } = useAuth();
+  console.log("DEBUG authUser:", authUser);
   const [data, setData] = useState<LearningPathResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [needsGenerate, setNeedsGenerate] = useState(false);
   const [errorState, setErrorState] = useState<LearningPathErrorState | null>(null);
   const [generateError, setGenerateError] = useState<string | null>(null);
+
+  // "Effective free" kalau plan free ATAU plan berbayar tapi sudah lewat
+  // tanggal expired — supaya UI tetap benar walau kolom `plan` di DB
+  // belum sempat "diturunkan" balik ke free oleh proses manapun.
+  // Dipertahankan sebagai lapis kedua untuk kasus race-condition
+  // (mis. token lama dipakai sesaat setelah plan expired) — backend
+  // (403 plan_required) tetap jadi sumber kebenaran utama sekarang.
+  const isPlanExpired =
+    authUser?.plan !== "free" &&
+    authUser?.plan_expires_at !== null &&
+    authUser?.plan_expires_at !== undefined &&
+    new Date(authUser.plan_expires_at) < new Date();
+
+  const isFreePlan = authUser?.plan === "free" || isPlanExpired;
 
   async function fetchLearningPath() {
     setLoading(true);
@@ -43,7 +61,9 @@ export default function LearningPathPage() {
       const status = err.response?.status;
       const reason = err.response?.data?.reason;
 
-      if (status === 422 && reason === "no_career_goal") {
+      if (status === 403) {
+        setErrorState({ type: "plan_required" });
+      } else if (status === 422 && reason === "no_career_goal") {
         setErrorState({ type: "no_career_goal" });
       } else if (status === 422 && reason === "not_assessed") {
         setErrorState({
@@ -72,10 +92,16 @@ export default function LearningPathPage() {
       await api.post("/learning-path/generate");
       await fetchLearningPath();
     } catch (err: any) {
-      setGenerateError(
-        err.response?.data?.message ??
-          "Gagal generate learning path. Coba lagi."
-      );
+      if (err.response?.status === 403) {
+        setGenerateError(
+          "Fitur ini khusus paket Pro atau Career Mentor. Upgrade dulu untuk generate learning path dengan AI."
+        );
+      } else {
+        setGenerateError(
+          err.response?.data?.message ??
+            "Gagal generate learning path. Coba lagi."
+        );
+      }
     } finally {
       setGenerating(false);
     }
@@ -83,6 +109,18 @@ export default function LearningPathPage() {
 
   if (loading) {
     return <LearningPathSkeleton />;
+  }
+
+  if (errorState?.type === "plan_required") {
+    return (
+      <StatusScreen
+        icon={Sparkles}
+        title="Fitur Pro"
+        description="Learning Path dengan rekomendasi AI khusus untuk pengguna paket Pro atau Career Mentor. Upgrade dulu untuk mengakses fitur ini."
+        actionLabel="Lihat Paket Pro"
+        onAction={() => router.push("/layanan")}
+      />
+    );
   }
 
   if (errorState?.type === "no_career_goal") {
@@ -153,33 +191,59 @@ export default function LearningPathPage() {
         {generateError && (
           <div className="flex items-center justify-between gap-3 bg-red-500/10 border border-red-500/30 text-red-300 text-sm rounded-xl px-4 py-3 mb-4">
             <span>{generateError}</span>
-            <button
-              onClick={handleGenerate}
-              className="flex items-center gap-1 text-xs font-semibold text-red-200 hover:text-white shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 rounded"
-            >
-              <RefreshCcw className="w-3.5 h-3.5" aria-hidden="true" />
-              Coba lagi
-            </button>
+            {isFreePlan ? (
+              <Link
+                href="/layanan"
+                className="flex items-center gap-1 text-xs font-semibold text-red-200 hover:text-white shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 rounded"
+              >
+                Lihat Paket
+              </Link>
+            ) : (
+              <button
+                onClick={handleGenerate}
+                className="flex items-center gap-1 text-xs font-semibold text-red-200 hover:text-white shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 rounded"
+              >
+                <RefreshCcw className="w-3.5 h-3.5" aria-hidden="true" />
+                Coba lagi
+              </button>
+            )}
           </div>
         )}
 
         {needsGenerate ? (
-          <div className="bg-white rounded-2xl p-6 text-center max-w-md mx-auto md:mx-0">
-            <p className="text-gray-500 text-sm mb-4">
-              Belum ada learning path untuk career ini. Generate otomatis
-              berdasarkan hasil Skill Assessment kamu.
-            </p>
-            <button
-              onClick={handleGenerate}
-              disabled={generating}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 disabled:opacity-50 text-white font-semibold py-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-            >
-              <Sparkles className="w-4 h-4" aria-hidden="true" />
-              {generating
-                ? "Menyusun learning path dengan AI..."
-                : "Generate Learning Path dengan AI"}
-            </button>
-          </div>
+          isFreePlan ? (
+            <div className="bg-white rounded-2xl p-6 text-center max-w-md mx-auto md:mx-0">
+              <p className="text-gray-500 text-sm mb-4">
+                Learning Path yang dipersonalisasi AI adalah fitur paket Pro.
+                Upgrade dulu untuk mendapatkan jalur belajar yang disesuaikan
+                dengan skill gap kamu.
+              </p>
+              <Link
+                href="/layanan"
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              >
+                <Sparkles className="w-4 h-4" aria-hidden="true" />
+                Lihat Paket Pro
+              </Link>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-6 text-center max-w-md mx-auto md:mx-0">
+              <p className="text-gray-500 text-sm mb-4">
+                Belum ada learning path untuk career ini. Generate otomatis
+                berdasarkan hasil Skill Assessment kamu.
+              </p>
+              <button
+                onClick={handleGenerate}
+                disabled={generating}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 disabled:opacity-50 text-white font-semibold py-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              >
+                <Sparkles className="w-4 h-4" aria-hidden="true" />
+                {generating
+                  ? "Menyusun learning path dengan AI..."
+                  : "Generate Learning Path dengan AI"}
+              </button>
+            </div>
+          )
         ) : (
           data && (
             // Sidebar (Overall Progress + Tips) di col-span-1 kiri,

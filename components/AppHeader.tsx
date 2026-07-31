@@ -6,6 +6,7 @@ import { useState } from "react";
 import { LogOut } from "lucide-react";
 import api from "@/lib/api";
 import { LogoMark } from "@/components/ui/Logo";
+import { useAuth } from "@/hooks/useAuth";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -16,19 +17,21 @@ const NAV_LINKS = [
 export default function AppHeader() {
   const router = useRouter();
   const pathname = usePathname();
+  const { clearSession } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
 
   async function handleLogout() {
     setLoggingOut(true);
     try {
-      // beri tahu backend supaya token ini di-revoke (bukan cuma dihapus di browser)
+      // Minta backend revoke refresh_token cookie + access token saat
+      // ini juga (bukan cuma dihapus di browser).
       await api.post("/logout");
     } catch {
-      // kalaupun request logout ke server gagal (misal token sudah expired),
-      // tetap lanjut hapus token lokal & redirect — jangan bikin user
-      // terjebak nggak bisa keluar dari sesi yang rusak
+      // Kalaupun request logout ke server gagal (misal access token sudah
+      // expired), tetap lanjut bersihkan sesi lokal & redirect — jangan
+      // bikin user terjebak nggak bisa keluar dari sesi yang rusak.
     } finally {
-      localStorage.removeItem("pathskill_token");
+      clearSession();
       router.replace("/login");
     }
   }

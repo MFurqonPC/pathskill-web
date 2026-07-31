@@ -1,51 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import { useAuth as useAuthContext } from "@/context/AuthContext";
 
 export interface AuthUser {
   id: number;
   name: string;
   email: string;
   career_goal_id: number | null;
-  education_background: string | null;
-  interest: string | null;
+  education_background?: string | null;
+  interest?: string | null;
+  role: "user" | "mentor" | "admin";
+  plan: "free" | "pro" | "career_mentor";       // tambahan
+  plan_expires_at: string | null;
 }
 
-type AuthStatus = "checking" | "authenticated" | "unauthenticated";
+export type AuthStatus = "checking" | "authenticated" | "unauthenticated";
 
 /**
- * Cek token yang tersimpan di localStorage itu masih valid dengan cara
- * hit GET /me ke backend. Kalau token nggak ada atau invalid/expired,
- * status jadi "unauthenticated".
+ * Adapter tipis di atas AuthContext supaya komponen lama (ProtectedLayout,
+ * AppHeader, dst) yang mengharapkan bentuk {status, user, clearSession}
+ * tidak perlu ditulis ulang. "checking" sekarang berarti: sedang mencoba
+ * silent-refresh lewat refresh_token cookie saat app pertama dibuka —
+ * BUKAN lagi cek localStorage.
  */
 export function useAuth() {
-  const [status, setStatus] = useState<AuthStatus>("checking");
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const { user, isInitializing, setSession, clearSession } = useAuthContext();
 
-  useEffect(() => {
-    async function checkAuth() {
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("pathskill_token")
-          : null;
+  const status: AuthStatus = isInitializing
+    ? "checking"
+    : user
+      ? "authenticated"
+      : "unauthenticated";
 
-      if (!token) {
-        setStatus("unauthenticated");
-        return;
-      }
-
-      try {
-        const res = await api.get<AuthUser>("/me");
-        setUser(res.data);
-        setStatus("authenticated");
-      } catch {
-        localStorage.removeItem("pathskill_token");
-        setStatus("unauthenticated");
-      }
-    }
-    checkAuth();
-  }, []);
-
-  return { status, user };
+  return { status, user: user as AuthUser | null, setSession, clearSession };
 }

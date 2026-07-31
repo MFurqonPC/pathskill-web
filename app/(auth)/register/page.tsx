@@ -4,7 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { LogoMark } from "@/components/ui/Logo";
+import {
+  AuthInput,
+  AuthCheckbox,
+  AuthErrorBanner,
+  AuthSubmitButton,
+} from "@/components/ui/AuthField";
+import { getAuthErrorMessage } from "@/lib/authError";
 
 const HIGHLIGHTS = [
   "Learning path dipersonalisasi dari hasil skill assessment kamu",
@@ -12,14 +20,19 @@ const HIGHLIGHTS = [
   "Rekomendasi materi berbasis kebutuhan industri IT terkini",
 ];
 
-// Class dasar untuk semua input form — dipusatkan biar konsisten
-// dan gampang di-maintain kalau mau ubah style sekali lagi nanti.
-const inputClass =
-  "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0B1739] focus:border-transparent transition";
-const labelClass = "text-sm font-medium text-gray-800 block mb-1";
+interface RegisterResponse {
+  token: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    career_goal_id: number | null;
+  };
+}
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { setSession } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,33 +41,38 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  function validate(): string | null {
+    if (!name.trim()) return "Nama wajib diisi.";
+    if (!email.trim()) return "Email wajib diisi.";
+    if (!/^\S+@\S+\.\S+$/.test(email)) return "Format email tidak valid.";
+    if (password.length < 8) return "Password minimal 8 karakter.";
+    if (password !== passwordConfirmation) return "Konfirmasi password tidak sama.";
+    return null;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    if (password !== passwordConfirmation) {
-      setError("Konfirmasi password tidak sama.");
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
     setLoading(true);
     try {
-      const res = await api.post("/register", {
+      const res = await api.post<RegisterResponse>("/register", {
         name,
         email,
         password,
         password_confirmation: passwordConfirmation,
         remember_me: rememberMe,
       });
-      localStorage.setItem("pathskill_token", res.data.token);
+      setSession(res.data.token, res.data.user);
       router.push("/profile-setup");
-    } catch (err: any) {
-      const messages = err.response?.data?.errors;
-      setError(
-        messages
-          ? Object.values(messages).flat().join(" ")
-          : "Gagal mendaftar. Coba lagi."
-      );
+    } catch (err: unknown) {
+      setError(getAuthErrorMessage(err, "Gagal mendaftar. Coba lagi."));
     } finally {
       setLoading(false);
     }
@@ -80,7 +98,6 @@ export default function RegisterPage() {
             Akses kembali learning path kamu
           </p>
 
-          {/* Desktop: highlight lengkap */}
           <ul className="hidden md:block mt-10 space-y-4">
             {HIGHLIGHTS.map((item) => (
               <li key={item} className="flex items-start gap-3 text-white/80 text-sm">
@@ -90,7 +107,6 @@ export default function RegisterPage() {
             ))}
           </ul>
 
-          {/* Mobile: versi ringkas 1 baris supaya value prop tetap kebaca tanpa makan tempat */}
           <p className="md:hidden mt-4 text-white/70 text-xs">
             {HIGHLIGHTS[0]}
           </p>
@@ -104,98 +120,67 @@ export default function RegisterPage() {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            <div>
-              <label htmlFor="name" className={labelClass}>
-                Nama Lengkap
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Budi Santoso"
-                className={inputClass}
-              />
-            </div>
+            <AuthInput
+              id="name"
+              name="name"
+              type="text"
+              label="Nama Lengkap"
+              autoComplete="name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Budi Santoso"
+            />
 
-            <div>
-              <label htmlFor="email" className={labelClass}>
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="nama@example.com"
-                className={inputClass}
-              />
-            </div>
+            <AuthInput
+              id="email"
+              name="email"
+              type="email"
+              label="Email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="nama@example.com"
+            />
 
-            <div>
-              <label htmlFor="password" className={labelClass}>
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimal 8 karakter"
-                className={inputClass}
-              />
-            </div>
+            <AuthInput
+              id="password"
+              name="password"
+              type="password"
+              label="Password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Minimal 8 karakter"
+            />
 
-            <div>
-              <label htmlFor="password_confirmation" className={labelClass}>
-                Konfirmasi Password
-              </label>
-              <input
-                id="password_confirmation"
-                name="password_confirmation"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={passwordConfirmation}
-                onChange={(e) => setPasswordConfirmation(e.target.value)}
-                placeholder="Ulangi password"
-                className={inputClass}
-              />
-            </div>
+            <AuthInput
+              id="password_confirmation"
+              name="password_confirmation"
+              type="password"
+              label="Konfirmasi Password"
+              autoComplete="new-password"
+              required
+              value={passwordConfirmation}
+              onChange={(e) => setPasswordConfirmation(e.target.value)}
+              placeholder="Ulangi password"
+            />
 
-            <label className="flex items-center gap-2 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="accent-[#3B4A9C] w-4 h-4"
-              />
-              Ingat saya
-            </label>
+            <AuthCheckbox
+              id="remember_me"
+              label="Ingat saya"
+              checked={rememberMe}
+              onChange={setRememberMe}
+            />
 
-            {error && (
-              <div className="bg-red-50 border-l-4 border-red-400 text-red-700 text-sm px-3 py-2 rounded">
-                {error}
-              </div>
-            )}
+            {error && <AuthErrorBanner message={error} />}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#3B4A9C] hover:bg-[#2f3c80] disabled:bg-[#3B4A9C]/50 text-white font-semibold py-3 rounded-xl mt-2 transition-colors"
-            >
-              {loading ? "Memproses..." : "Daftar"}
-            </button>
+            <AuthSubmitButton loading={loading} loadingLabel="Memproses...">
+              Daftar
+            </AuthSubmitButton>
           </form>
 
           <p className="text-center text-sm text-gray-600 mt-6">

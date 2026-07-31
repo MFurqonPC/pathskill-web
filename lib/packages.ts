@@ -21,8 +21,7 @@ export const PACKAGES: Package[] = [
     description: "Cocok untuk kamu yang baru mau mulai mengenali skill gap.",
     features: [
       "1x Skill Assessment",
-      "1 Learning Path dasar (non-AI)",
-      "Akses komunitas belajar",
+      "Skill map & gap analysis",
       "Dashboard progress dasar",
     ],
     highlight: false,
@@ -39,7 +38,6 @@ export const PACKAGES: Package[] = [
       "Skill assessment tanpa batas",
       "Jalur belajar personal by AI",
       "Semua modul & assignment praktis",
-      "Sertifikat penyelesaian modul",
       "Dashboard progress lengkap",
     ],
     highlight: true,

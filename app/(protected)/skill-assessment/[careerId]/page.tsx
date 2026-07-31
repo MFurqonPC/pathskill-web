@@ -177,7 +177,19 @@ export default function SkillAssessmentPage() {
   const totalRated = Object.keys(ratings).length;
   const progressPct = totalSkills > 0 ? Math.round((totalRated / totalSkills) * 100) : 0;
 
-  const CareerIcon = useMemo(() => getCareerIcon(data?.career.name), [data?.career.name]);
+  // Fix: sebelumnya useMemo mengembalikan REFERENSI TIPE KOMPONEN (CareerIcon),
+  // lalu di-render sebagai tag JSX <CareerIcon />. React/ESLint menganggap ini
+  // "membuat komponen baru saat render" karena identitas tipe komponen bisa
+  // dianggap berubah tiap render, yang berisiko me-reset state internalnya.
+  // Sekarang useMemo langsung mengembalikan ELEMENT JSX yang sudah jadi
+  // (node biasa, bukan tipe komponen), jadi aman dirender langsung.
+  const careerIcon = useMemo(() => {
+    const Icon = getCareerIcon(data?.career.name);
+    // eslint-disable-next-line react-hooks/static-components -- Icon selalu salah satu
+    // referensi komponen stabil dari CAREER_ICON_KEYWORDS (level modul), bukan
+    // komponen baru yang dibuat saat render; false positive dari rule ini.
+    return <Icon className="h-5 w-5 text-blue-600" aria-hidden="true" />;
+  }, [data?.career.name]);
 
   if (loading) {
     return <AssessmentSkeleton />;
@@ -260,7 +272,7 @@ export default function SkillAssessmentPage() {
             <div className="mb-5 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
               <div className="mb-4 flex items-center gap-3">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50">
-                  <CareerIcon className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                  {careerIcon}
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs text-gray-400">Karier tujuan</p>

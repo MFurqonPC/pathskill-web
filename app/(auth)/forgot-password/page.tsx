@@ -4,10 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "@/lib/api";
 import { LogoMark } from "@/components/ui/Logo";
-
-const inputClass =
-  "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0B1739] focus:border-transparent transition";
-const labelClass = "text-sm font-medium text-gray-800 block mb-1";
+import { AuthInput, AuthErrorBanner, AuthSubmitButton } from "@/components/ui/AuthField";
+import { getAuthErrorMessage } from "@/lib/authError";
 
 function MailIcon({ className = "" }: { className?: string }) {
   return (
@@ -40,17 +38,28 @@ export default function ForgotPasswordPage() {
     return () => clearTimeout(t);
   }, [cooldown]);
 
+  function validate(): string | null {
+    if (!email.trim()) return "Email wajib diisi.";
+    if (!/^\S+@\S+\.\S+$/.test(email)) return "Format email tidak valid.";
+    return null;
+  }
+
   async function sendResetLink() {
     setError(null);
+
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setLoading(true);
     try {
       await api.post("/forgot-password", { email });
       setSent(true);
       setCooldown(30);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message ?? "Gagal mengirim tautan reset. Coba lagi."
-      );
+    } catch (err: unknown) {
+      setError(getAuthErrorMessage(err, "Gagal mengirim tautan reset. Coba lagi."));
     } finally {
       setLoading(false);
     }
@@ -157,36 +166,23 @@ export default function ForgotPasswordPage() {
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                <div>
-                  <label htmlFor="email" className={labelClass}>
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="nama@email.com"
-                    className={inputClass}
-                  />
-                </div>
+                <AuthInput
+                  id="email"
+                  name="email"
+                  type="email"
+                  label="Email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="nama@email.com"
+                />
 
-                {error && (
-                  <div className="bg-red-50 border-l-4 border-red-400 text-red-700 text-sm px-3 py-2 rounded">
-                    {error}
-                  </div>
-                )}
+                {error && <AuthErrorBanner message={error} />}
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-[#3B4A9C] hover:bg-[#2f3c80] disabled:bg-[#3B4A9C]/50 text-white font-semibold py-3 rounded-xl mt-2 transition-colors"
-                >
-                  {loading ? "Mengirim..." : "Kirim Tautan Reset"}
-                </button>
+                <AuthSubmitButton loading={loading} loadingLabel="Mengirim...">
+                  Kirim Tautan Reset
+                </AuthSubmitButton>
               </form>
 
               <div className="flex items-start gap-2 bg-gray-50 rounded-lg px-3 py-2.5 mt-6">

@@ -13,6 +13,7 @@ export interface DashboardResponse {
     weeks_remaining: number;
   };
   active_learning_path: {
+    locked: boolean;
     modules_completed: number;
     total_modules: number;
     progress_percentage: number;
@@ -26,6 +27,7 @@ export interface DashboardResponse {
   };
   assignments_to_complete: {
     id: number;
+    module_id: number;
     title: string;
     module_title: string;
     due_date: string | null;

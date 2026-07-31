@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import {
   Radar,
   RadarChart,
@@ -17,6 +18,7 @@ import {
   Legend,
   Tooltip,
 } from "recharts";
+import type { ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { TrendingUp, Target, Clock, Sparkles, UserCircle, ShieldCheck } from "lucide-react";
 import api from "@/lib/api";
 import type { SkillMapResponse } from "@/types/skill";
@@ -36,38 +38,52 @@ export default function SkillMapPage() {
   const [errorState, setErrorState] = useState<SkillMapErrorState | null>(null);
   const [chartMode, setChartMode] = useState<ChartMode>("radar");
 
-  async function fetchSkillMap() {
+  async function fetchSkillMap(signal?: AbortSignal) {
     setLoading(true);
     setErrorState(null);
     try {
-      const res = await api.get<SkillMapResponse>("/skill-map");
+      const res = await api.get<SkillMapResponse>("/skill-map", { signal });
+      if (signal?.aborted) return;
       setData(res.data);
-    } catch (err: any) {
-      const status = err.response?.status;
-      const reason = err.response?.data?.reason;
+    } catch (err) {
+      if (signal?.aborted) return;
 
-      if (status === 422 && reason === "no_career_goal") {
-        setErrorState({ type: "no_career_goal" });
-      } else if (status === 422 && reason === "not_assessed") {
-        setErrorState({
-          type: "not_assessed",
-          careerGoalId: err.response.data.career_goal_id,
-        });
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        const reason = err.response?.data?.reason;
+
+        if (status === 422 && reason === "no_career_goal") {
+          setErrorState({ type: "no_career_goal" });
+        } else if (status === 422 && reason === "not_assessed") {
+          setErrorState({
+            type: "not_assessed",
+            careerGoalId: err.response?.data?.career_goal_id,
+          });
+        } else {
+          setErrorState({
+            type: "technical",
+            message:
+              err.response?.data?.message ??
+              "Gagal memuat skill map. Periksa koneksi kamu dan coba lagi.",
+          });
+        }
       } else {
         setErrorState({
           type: "technical",
-          message:
-            err.response?.data?.message ??
-            "Gagal memuat skill map. Periksa koneksi kamu dan coba lagi.",
+          message: "Gagal memuat skill map. Periksa koneksi kamu dan coba lagi.",
         });
       }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchSkillMap();
+    const controller = new AbortController();
+    queueMicrotask(() => {
+      fetchSkillMap(controller.signal);
+    });
+    return () => controller.abort();
   }, []);
 
   const chartData = useMemo(() => {
@@ -123,7 +139,7 @@ export default function SkillMapPage() {
             ? errorState.message
             : "Terjadi kesalahan saat memuat data."
         }
-        onRetry={fetchSkillMap}
+        onRetry={() => fetchSkillMap()}
       />
     );
   }
@@ -269,6 +285,21 @@ export default function SkillMapPage() {
                             );
                           }}
                         />
+                        {/*
+                          Industry Requirements dirender LEBIH DULU karena
+                          nilainya selalu >= Current Skills. Recharts
+                          menumpuk elemen berikutnya di atas elemen
+                          sebelumnya, jadi kalau urutannya dibalik,
+                          polygon Current Skills bisa ketutup total.
+                          Styling/warna/opacity TIDAK diubah dari sebelumnya.
+                        */}
+                        <Radar
+                          name="Industry Requirements"
+                          dataKey="Industry Requirements"
+                          stroke="#7c3aed"
+                          fill="#7c3aed"
+                          fillOpacity={0.25}
+                        />
                         <Radar
                           name="Current Skills"
                           dataKey="Current Skills"
@@ -276,13 +307,6 @@ export default function SkillMapPage() {
                           fill="#2563eb"
                           fillOpacity={0.35}
                           connectNulls={false}
-                        />
-                        <Radar
-                          name="Industry Requirements"
-                          dataKey="Industry Requirements"
-                          stroke="#7c3aed"
-                          fill="#7c3aed"
-                          fillOpacity={0.25}
                         />
                         <Legend wrapperStyle={{ fontSize: 11 }} />
                       </RadarChart>
@@ -301,9 +325,10 @@ export default function SkillMapPage() {
                           width={90}
                         />
                         <Tooltip
-                          formatter={(value: number | null) =>
-                            value === null ? "Belum dinilai" : value.toFixed(1)
-                          }
+                          formatter={(value: ValueType | undefined) => {
+                            const num = Array.isArray(value) ? Number(value[0]) : Number(value);
+                            return Number.isFinite(num) ? num.toFixed(1) : "Belum dinilai";
+                          }}
                         />
                         <Bar
                           dataKey="Current Skills"

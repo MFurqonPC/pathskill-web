@@ -189,58 +189,81 @@ export default function DashboardPage() {
               <Compass className="w-4 h-4 text-blue-600" aria-hidden="true" />
               Jalur Belajar Aktif
             </h2>
-            <Link
-              href="/learning-path"
-              className="text-blue-600 text-sm hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-            >
-              Lihat Semua
-            </Link>
+            {!data.active_learning_path.locked && (
+              <Link
+                href="/learning-path"
+                className="text-blue-600 text-sm hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              >
+                Lihat Semua
+              </Link>
+            )}
           </div>
 
-          <div className="bg-purple-50 rounded-xl p-4 mb-3">
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="w-4 h-4 text-purple-600" aria-hidden="true" />
-              <span className="text-purple-600 font-semibold text-sm">
-                Jalur Belajar Rekomendasi AI
-              </span>
+          {data.active_learning_path.locked ? (
+            <div className="bg-purple-50 rounded-xl p-5 text-center">
+              <Sparkles className="w-5 h-5 text-purple-600 mx-auto mb-2" aria-hidden="true" />
+              <p className="text-sm font-semibold text-purple-700 mb-1">
+                Learning Path AI adalah fitur Pro
+              </p>
+              <p className="text-gray-500 text-xs mb-4">
+                Upgrade untuk membuka jalur belajar personalisasi AI dan semua
+                modul pembelajaran.
+              </p>
+              <Link
+                href="/layanan"
+                className="inline-block bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-lg"
+              >
+                Lihat Paket Pro
+              </Link>
             </div>
-            <p className="text-gray-500 text-xs mb-3">
-              Kamu sedang mengikuti jalur belajar yang dipersonalisasi
-              berdasarkan hasil skill assessment dan kebutuhan industri.
-            </p>
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>
-                {data.active_learning_path.modules_completed} dari{" "}
-                {data.active_learning_path.total_modules} modul selesai
-              </span>
-              <span>{progressPct}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div
-                className="bg-blue-600 h-1.5 rounded-full transition-all"
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
-          </div>
-
-          {data.active_learning_path.modules.map((module) => (
-            <Link
-              key={module.id}
-              href={`/learning-path/${module.id}`}
-              className="flex justify-between items-center border border-gray-100 rounded-xl p-3 mb-2 last:mb-0 hover:border-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-            >
-              <div>
-                <p className="text-sm font-medium text-[#0B1739]">
-                  {module.title}
+          ) : (
+            <>
+              <div className="bg-purple-50 rounded-xl p-4 mb-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles className="w-4 h-4 text-purple-600" aria-hidden="true" />
+                  <span className="text-purple-600 font-semibold text-sm">
+                    Jalur Belajar Rekomendasi AI
+                  </span>
+                </div>
+                <p className="text-gray-500 text-xs mb-3">
+                  Kamu sedang mengikuti jalur belajar yang dipersonalisasi
+                  berdasarkan hasil skill assessment dan kebutuhan industri.
                 </p>
-                <p className="text-xs text-gray-400">
-                  {module.total_lessons} pelajaran · {module.total_assignments}{" "}
-                  tugas
-                </p>
+                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>
+                    {data.active_learning_path.modules_completed} dari{" "}
+                    {data.active_learning_path.total_modules} modul selesai
+                  </span>
+                  <span>{progressPct}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                  <div
+                    className="bg-blue-600 h-1.5 rounded-full transition-all"
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-gray-400" aria-hidden="true" />
-            </Link>
-          ))}
+
+              {data.active_learning_path.modules.map((module) => (
+                <Link
+                  key={module.id}
+                  href={`/learning-path/${module.id}`}
+                  className="flex justify-between items-center border border-gray-100 rounded-xl p-3 mb-2 last:mb-0 hover:border-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-[#0B1739]">
+                      {module.title}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {module.total_lessons} pelajaran ·{" "}
+                      {module.total_assignments} tugas
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" aria-hidden="true" />
+                </Link>
+              ))}
+            </>
+          )}
         </div>
 
         {/* Assignments to Complete */}
@@ -251,7 +274,9 @@ export default function DashboardPage() {
           </h2>
           {data.assignments_to_complete.length === 0 && (
             <p className="text-gray-400 text-sm">
-              Tidak ada tugas tertunda. Kerja bagus!
+              {data.active_learning_path.locked
+                ? "Upgrade ke Pro untuk melihat tugas dari learning path kamu."
+                : "Tidak ada tugas tertunda. Kerja bagus!"}
             </p>
           )}
           <div className="space-y-3">

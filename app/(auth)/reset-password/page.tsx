@@ -5,10 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { LogoMark } from "@/components/ui/Logo";
-
-const inputClass =
-  "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0B1739] focus:border-transparent transition";
-const labelClass = "text-sm font-medium text-gray-800 block mb-1";
+import { AuthInput, AuthErrorBanner, AuthSubmitButton } from "@/components/ui/AuthField";
+import { getAuthErrorMessage } from "@/lib/authError";
 
 export default function ResetPasswordPage() {
   return (
@@ -32,12 +30,19 @@ function ResetPasswordForm() {
 
   const linkInvalid = !token || !email;
 
+  function validate(): string | null {
+    if (password.length < 8) return "Password minimal 8 karakter.";
+    if (password !== passwordConfirmation) return "Konfirmasi password tidak sama.";
+    return null;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    if (password !== passwordConfirmation) {
-      setError("Konfirmasi password tidak sama.");
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -51,13 +56,8 @@ function ResetPasswordForm() {
       });
       setDone(true);
       setTimeout(() => router.push("/login"), 2000);
-    } catch (err: any) {
-      const messages = err.response?.data?.errors;
-      setError(
-        messages
-          ? Object.values(messages).flat().join(" ")
-          : err.response?.data?.message ?? "Gagal reset password. Coba lagi."
-      );
+    } catch (err: unknown) {
+      setError(getAuthErrorMessage(err, "Gagal reset password. Coba lagi."));
     } finally {
       setLoading(false);
     }
@@ -124,54 +124,36 @@ function ResetPasswordForm() {
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                <div>
-                  <label htmlFor="password" className={labelClass}>
-                    Password Baru
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    minLength={8}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Minimal 8 karakter"
-                    className={inputClass}
-                  />
-                </div>
+                <AuthInput
+                  id="password"
+                  name="password"
+                  type="password"
+                  label="Password Baru"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Minimal 8 karakter"
+                />
 
-                <div>
-                  <label htmlFor="password_confirmation" className={labelClass}>
-                    Konfirmasi Password Baru
-                  </label>
-                  <input
-                    id="password_confirmation"
-                    name="password_confirmation"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    value={passwordConfirmation}
-                    onChange={(e) => setPasswordConfirmation(e.target.value)}
-                    placeholder="Ulangi password baru"
-                    className={inputClass}
-                  />
-                </div>
+                <AuthInput
+                  id="password_confirmation"
+                  name="password_confirmation"
+                  type="password"
+                  label="Konfirmasi Password Baru"
+                  autoComplete="new-password"
+                  required
+                  value={passwordConfirmation}
+                  onChange={(e) => setPasswordConfirmation(e.target.value)}
+                  placeholder="Ulangi password baru"
+                />
 
-                {error && (
-                  <div className="bg-red-50 border-l-4 border-red-400 text-red-700 text-sm px-3 py-2 rounded">
-                    {error}
-                  </div>
-                )}
+                {error && <AuthErrorBanner message={error} />}
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-[#3B4A9C] hover:bg-[#2f3c80] disabled:bg-[#3B4A9C]/50 text-white font-semibold py-3 rounded-xl mt-2 transition-colors"
-                >
-                  {loading ? "Memproses..." : "Simpan Password Baru"}
-                </button>
+                <AuthSubmitButton loading={loading} loadingLabel="Memproses...">
+                  Simpan Password Baru
+                </AuthSubmitButton>
               </form>
             </>
           )}

@@ -1,54 +1,7 @@
+import Link from "next/link";
 import { buildWhatsAppLink } from "@/lib/site-config";
-import { Sprout, Rocket, Target, Check } from "lucide-react";
-
-const PACKAGES = [
-  {
-    icon: Sprout,
-    name: "Starter",
-    price: "Gratis",
-    period: "",
-    description: "Cocok untuk kamu yang baru mau mulai mengenali skill gap.",
-    features: [
-      "1x Skill Assessment",
-      "1 Learning Path dasar (non-AI)",
-      "Akses komunitas belajar",
-      "Dashboard progress dasar",
-    ],
-    highlight: false,
-  },
-  {
-    icon: Rocket,
-    name: "Pro",
-    price: "Rp49.000",
-    period: "/bulan",
-    description:
-      "Untuk yang serius mengejar target karier dalam beberapa bulan.",
-    features: [
-      "Unlimited Skill Assessment",
-      "Learning Path personalisasi AI (Groq)",
-      "Semua modul & assignment praktis",
-      "Sertifikat penyelesaian modul",
-      "Dashboard progress lengkap",
-    ],
-    highlight: true,
-  },
-  {
-    icon: Target,
-    name: "Career Mentor",
-    price: "Rp199.000",
-    period: "/bulan",
-    description:
-      "Dampingan personal biar nggak salah arah dan lebih cepat siap kerja.",
-    features: [
-      "Semua fitur Pro",
-      "1:1 mentoring session (2x/bulan)",
-      "Review portfolio & CV",
-      "Prioritas job-matching partner",
-      "Grup diskusi eksklusif mentor",
-    ],
-    highlight: false,
-  },
-];
+import { PACKAGES, ctaLabel } from "@/lib/packages";
+import { Check } from "lucide-react";
 
 export default function LayananPage() {
   return (
@@ -88,7 +41,7 @@ export default function LayananPage() {
 
             return (
               <div
-                key={pkg.name}
+                key={pkg.id}
                 className={`group relative rounded-2xl p-6 flex flex-col transition-all duration-200 ${
                   pkg.highlight
                     ? "order-first md:order-none bg-[#0B1739] text-white shadow-2xl shadow-purple-900/30 ring-1 ring-purple-400/60 md:-mt-4 md:mb-4 hover:-translate-y-1"
@@ -160,20 +113,33 @@ export default function LayananPage() {
                   ))}
                 </ul>
 
-                <a
-                  href={buildWhatsAppLink(
-                    `Halo, saya ingin memesan paket ${pkg.name} PathSkill.`
-                  )}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`text-center font-semibold py-3 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
-                    pkg.highlight
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:opacity-90 focus-visible:ring-purple-400 focus-visible:ring-offset-[#0B1739]"
-                      : "bg-[#0B1739] text-white hover:bg-[#0B1739]/90 focus-visible:ring-[#0B1739] focus-visible:ring-offset-white"
-                  }`}
-                >
-                  Pesan via WhatsApp
-                </a>
+                {pkg.id === "starter" ? (
+                  <Link
+                    href="/register"
+                    className={`text-center font-semibold py-3 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                      pkg.highlight
+                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:opacity-90 focus-visible:ring-purple-400 focus-visible:ring-offset-[#0B1739]"
+                        : "bg-[#0B1739] text-white hover:bg-[#0B1739]/90 focus-visible:ring-[#0B1739] focus-visible:ring-offset-white"
+                    }`}
+                  >
+                    {ctaLabel(pkg.id)}
+                  </Link>
+                ) : (
+                  <a
+                    href={buildWhatsAppLink(
+                      `Halo, saya ingin memesan paket ${pkg.name} PathSkill.`
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-center font-semibold py-3 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                      pkg.highlight
+                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:opacity-90 focus-visible:ring-purple-400 focus-visible:ring-offset-[#0B1739]"
+                        : "bg-[#0B1739] text-white hover:bg-[#0B1739]/90 focus-visible:ring-[#0B1739] focus-visible:ring-offset-white"
+                    }`}
+                  >
+                    {ctaLabel(pkg.id)}
+                  </a>
+                )}
               </div>
             );
           })}
