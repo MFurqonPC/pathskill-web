@@ -63,7 +63,7 @@ const initialForm: FormData = {
 export default function KontakPage() {
   const [form, setForm] = useState<FormData>(initialForm);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [status, setStatus] = useState
+  const [status, setStatus] = useState<
     "idle" | "sending" | "sent" | "error"
   >("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -179,7 +179,7 @@ export default function KontakPage() {
             teknis? Chat langsung via WhatsApp untuk respons paling cepat.
           </p>
 
-          
+          <a
             href={buildWhatsAppLink(
               "Halo, saya ingin bertanya soal PathSkill."
             )}
