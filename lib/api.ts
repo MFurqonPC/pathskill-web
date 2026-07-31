@@ -1,7 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { getToken, setToken, getEpoch } from "@/lib/token-store";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://pathskill-app-production.up.railway.app/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
