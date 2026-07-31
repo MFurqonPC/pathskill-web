@@ -77,7 +77,7 @@ export default function KontakPage() {
     function updateField<K extends keyof FormData>(key: K, value: FormData[K]) {
         setForm((prev) => ({ ...prev, [key]: value }));
         // hapus error field ini begitu user mulai memperbaiki
-        if (key !== "website" && fieldErrors[key]) {
+        if (key !== "website" && fieldErrors[key as keyof FieldErrors]) {
             setFieldErrors((prev) => {
                 const next = { ...prev };
                 delete next[key as keyof FieldErrors];
