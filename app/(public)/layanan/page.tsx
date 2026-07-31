@@ -42,7 +42,7 @@ export default function LayananPage() {
             return (
               <div
                 key={pkg.id}
-                className={`group relative rounded-2xl p-6 flex flex-col transition-all duration-200 ${
+                className={`group relative rounded-2xl p-6 flex flex-col h-full transition-all duration-200 ${
                   pkg.highlight
                     ? "order-first md:order-none bg-[#0B1739] text-white shadow-2xl shadow-purple-900/30 ring-1 ring-purple-400/60 md:-mt-4 md:mb-4 hover:-translate-y-1"
                     : "bg-white border border-gray-200 text-[#0B1739] shadow-sm hover:shadow-lg hover:-translate-y-1"
