@@ -278,11 +278,10 @@ export default function HomePage() {
               return (
                 <div
                   key={p.id}
-                  className={`group relative rounded-2xl p-6 flex flex-col h-full transition-all duration-200 ${
-                    p.highlight
+                  className={`group relative rounded-2xl p-6 flex flex-col h-full transition-all duration-200 ${p.highlight
                       ? "order-first md:order-none bg-[#0B1739] text-white shadow-2xl shadow-purple-900/30 ring-1 ring-purple-400/60 md:-mt-4 md:mb-4 hover:-translate-y-1"
                       : "bg-white border border-gray-200 text-[#0B1739] shadow-sm hover:shadow-lg hover:-translate-y-1"
-                  }`}
+                    }`}
                 >
                   {p.highlight && (
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md whitespace-nowrap">
@@ -291,11 +290,10 @@ export default function HomePage() {
                   )}
 
                   <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
-                      p.highlight
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${p.highlight
                         ? "bg-white/10 text-white"
                         : "bg-blue-50 text-blue-600"
-                    }`}
+                      }`}
                   >
                     <Icon className="w-6 h-6" aria-hidden="true" />
                   </div>
@@ -303,9 +301,8 @@ export default function HomePage() {
                   <p className="font-bold text-xl mb-1">{p.name}</p>
 
                   <p
-                    className={`text-sm mb-4 min-h-[2.5rem] ${
-                      p.highlight ? "text-white/60" : "text-gray-500"
-                    }`}
+                    className={`text-sm mb-4 min-h-[2.5rem] ${p.highlight ? "text-white/60" : "text-gray-500"
+                      }`}
                   >
                     {p.description}
                   </p>
@@ -313,9 +310,8 @@ export default function HomePage() {
                   <p className="mb-5">
                     <span className="text-3xl font-bold">{p.price}</span>
                     <span
-                      className={`text-sm ml-1 ${
-                        p.highlight ? "text-white/60" : "text-gray-400"
-                      }`}
+                      className={`text-sm ml-1 ${p.highlight ? "text-white/60" : "text-gray-400"
+                        }`}
                     >
                       {p.period}
                     </span>
@@ -325,9 +321,8 @@ export default function HomePage() {
                     {p.features.map((f) => (
                       <li key={f} className="flex items-start gap-2 text-sm">
                         <Check
-                          className={`w-4 h-4 shrink-0 mt-0.5 ${
-                            p.highlight ? "text-teal-400" : "text-teal-600"
-                          }`}
+                          className={`w-4 h-4 shrink-0 mt-0.5 ${p.highlight ? "text-teal-400" : "text-teal-600"
+                            }`}
                           aria-hidden="true"
                         />
                         <span className={p.highlight ? "text-white/80" : "text-gray-600"}>
@@ -340,11 +335,10 @@ export default function HomePage() {
                   {p.id === "starter" ? (
                     <Link
                       href="/register"
-                      className={`text-center font-semibold px-5 py-2.5 rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${
-                        p.highlight
+                      className={`text-center font-semibold px-5 py-2.5 rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${p.highlight
                           ? "bg-white text-[#0B1739] hover:opacity-90"
                           : "bg-gray-100 text-[#0B1739] hover:bg-gray-200"
-                      }`}
+                        }`}
                     >
                       {ctaLabel(p.id)}
                     </Link>
@@ -355,11 +349,10 @@ export default function HomePage() {
                       )}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`text-center font-semibold px-5 py-2.5 rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${
-                        p.highlight
+                      className={`text-center font-semibold px-5 py-2.5 rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${p.highlight
                           ? "bg-white text-[#0B1739] hover:opacity-90"
                           : "bg-gray-100 text-[#0B1739] hover:bg-gray-200"
-                      }`}
+                        }`}
                     >
                       {ctaLabel(p.id)}
                     </a>
