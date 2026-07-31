@@ -58,7 +58,6 @@ export default function HomePage() {
     <div>
       {/* HERO */}
       <section className="bg-[#0B1739] relative overflow-hidden">
-        {/* ambient glow, murni dekoratif */}
         <div
           className="absolute -top-32 -right-32 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl motion-safe:animate-pulse"
           aria-hidden="true"
@@ -99,7 +98,6 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* trust strip - ganti angka dengan data asli sebelum rilis */}
             <div className="flex items-center justify-center md:justify-start gap-6 text-white/50 text-xs">
               <span>Tanpa kartu kredit</span>
               <span className="w-1 h-1 rounded-full bg-white/20" aria-hidden="true" />
@@ -107,7 +105,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Signature visual: jalur skill map, echo dari onboarding produk */}
           <div className="relative">
             <svg
               viewBox="0 0 400 320"
@@ -139,19 +136,16 @@ export default function HomePage() {
                 </linearGradient>
               </defs>
 
-              {/* milestone 1: current skill */}
               <circle cx="30" cy="280" r="10" fill="#14b8a6" />
               <text x="48" y="285" fill="#ffffff" fontSize="13" fontWeight="600">
                 Skill saat ini
               </text>
 
-              {/* milestone 2: learning */}
               <circle cx="230" cy="130" r="10" fill="#2563eb" />
               <text x="248" y="135" fill="#ffffff" fontSize="13" fontWeight="600">
                 Belajar terarah
               </text>
 
-              {/* milestone 3: goal */}
               <circle cx="370" cy="40" r="12" fill="#7c3aed" />
               <text x="330" y="24" fill="#ffffff" fontSize="13" fontWeight="600">
                 Siap kerja
@@ -167,8 +161,9 @@ export default function HomePage() {
         `}</style>
       </section>
 
-      {/* CARA KERJA - sequence beneran, bukan feature grid generik */}
-      <section className="bg-white py-20">
+      {/* CARA KERJA — background diubah ke gray-50 supaya card putih kontras jelas,
+          konsisten dengan pola section Pricing di bawah */}
+      <section className="bg-gray-50 py-20">
         <div className="max-w-6xl mx-auto px-5">
           <h2 className="text-[#0B1739] text-3xl font-bold text-center mb-3">
             Bagaimana PathSkill Membantu Kamu
@@ -179,7 +174,6 @@ export default function HomePage() {
           </p>
 
           <div className="relative grid md:grid-cols-3 gap-8 md:gap-6">
-            {/* garis penghubung gradient, hanya terlihat di desktop */}
             <div
               className="hidden md:block absolute top-9 left-[16.5%] right-[16.5%] h-0.5 bg-gradient-to-r from-teal-300 via-blue-300 to-purple-300"
               aria-hidden="true"
@@ -191,10 +185,10 @@ export default function HomePage() {
               return (
                 <div
                   key={step.title}
-                  className={`group relative bg-white rounded-2xl border border-gray-100 p-6 shadow-sm ring-1 ring-transparent transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${colors.ring}`}
+                  className={`group relative bg-white rounded-2xl border border-gray-200 p-6 shadow-md ring-1 ring-transparent transition-all duration-200 hover:shadow-xl hover:-translate-y-1 ${colors.ring}`}
                 >
                   <span
-                    className="pointer-events-none absolute top-3 right-4 text-5xl sm:text-6xl font-black tabular-nums select-none text-[#0B1739]/[0.06]"
+                    className="pointer-events-none absolute top-3 right-4 text-5xl sm:text-6xl font-black tabular-nums select-none text-[#0B1739]/[0.08]"
                     aria-hidden="true"
                   >
                     {step.number}
@@ -217,8 +211,9 @@ export default function HomePage() {
             })}
           </div>
 
-          {/* PREVIEW SKILL MAP - contoh visual hasil step 1 */}
-          <div className="mt-20 grid md:grid-cols-2 gap-10 items-start">
+          {/* PREVIEW SKILL MAP — dikasih bg-white karena section sekarang gray-50,
+              supaya blok preview ini tetap menonjol seperti card, bukan menyatu ke background */}
+          <div className="mt-20 grid md:grid-cols-2 gap-10 items-start bg-white rounded-2xl border border-gray-200 shadow-md p-6 md:p-10">
             <div>
               <span className="inline-block bg-blue-50 text-blue-600 text-xs font-semibold tracking-wide px-3 py-1.5 rounded-full mb-4">
                 CONTOH HASIL
@@ -354,7 +349,7 @@ export default function HomePage() {
                       {ctaLabel(p.id)}
                     </Link>
                   ) : (
-                    <a
+                    
                       href={buildWhatsAppLink(
                         `Halo, saya ingin memesan paket ${p.name} PathSkill.`
                       )}
