@@ -349,7 +349,7 @@ export default function HomePage() {
                       {ctaLabel(p.id)}
                     </Link>
                   ) : (
-                    
+                    <a
                       href={buildWhatsAppLink(
                         `Halo, saya ingin memesan paket ${p.name} PathSkill.`
                       )}
