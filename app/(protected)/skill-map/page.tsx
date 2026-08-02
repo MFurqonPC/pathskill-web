@@ -31,6 +31,23 @@ type SkillMapErrorState =
   | { type: "not_assessed"; careerGoalId: number }
   | { type: "technical"; message: string };
 
+// Override outline default browser yang muncul saat elemen SVG recharts
+// (radar/bar, focusable untuk aksesibilitas keyboard) di-tap di mobile.
+// Tooltip tetap berfungsi normal karena itu event hover/active terpisah
+// dari outline fokus ini.
+function ChartFocusStyles() {
+  return (
+    <style>{`
+      .recharts-wrapper:focus,
+      .recharts-wrapper *:focus,
+      .recharts-surface:focus,
+      .recharts-surface *:focus {
+        outline: none !important;
+      }
+    `}</style>
+  );
+}
+
 export default function SkillMapPage() {
   const router = useRouter();
   const [data, setData] = useState<SkillMapResponse | null>(null);
@@ -146,6 +163,7 @@ export default function SkillMapPage() {
 
   return (
     <div className="min-h-screen bg-[#0B1739] pb-16">
+      <ChartFocusStyles />
       <div className="max-w-md md:max-w-5xl xl:max-w-6xl mx-auto px-5 md:px-8 pt-10">
         <h1 className="text-white text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">
           Your Skill Map
