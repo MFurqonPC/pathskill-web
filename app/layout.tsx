@@ -7,19 +7,31 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
+const APP_URL = "https://pathskill-web.vercel.app";
+const TITLE = "PathSkill - Petakan Skill, Susun Jalur Belajar Personal";
+const DESCRIPTION =
+  "PathSkill memetakan kesenjangan skill kamu terhadap standar industri, lalu menyusun jalur belajar personal yang disusun AI — bukan kursus generik yang sama untuk semua orang.";
+
 export const metadata: Metadata = {
-  title: "PathSkill - Petakan Skill, Susun Jalur Belajar Personal",
-  description:
-    "PathSkill memetakan kesenjangan skill kamu terhadap standar industri, lalu menyusun jalur belajar personal yang disusun AI — bukan kursus generik yang sama untuk semua orang.",
+  metadataBase: new URL(APP_URL),
+  title: TITLE,
+  description: DESCRIPTION,
   icons: {
     icon: "/logo/pathskill-icon.png",
     apple: "/logo/pathskill-icon.png",
+  },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: APP_URL,
+    siteName: "PathSkill",
+    locale: "id_ID",
+    type: "website",
   },
 };
 
