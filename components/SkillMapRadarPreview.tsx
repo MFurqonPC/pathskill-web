@@ -59,6 +59,24 @@ function shortenSkillLabel(label: string) {
   return SHORT_SKILL_LABELS[label] ?? label;
 }
 
+// Override outline default browser yang muncul saat elemen SVG recharts
+// (polygon radar, focusable untuk aksesibilitas keyboard) di-tap di mobile.
+// Tooltip/legend tetap berfungsi normal karena itu event hover/active
+// terpisah dari outline fokus ini. Sama persis dengan fix di SkillMapPage.tsx
+// (produk asli) supaya konsisten di seluruh aplikasi.
+function ChartFocusStyles() {
+  return (
+    <style>{`
+      .recharts-wrapper:focus,
+      .recharts-wrapper *:focus,
+      .recharts-surface:focus,
+      .recharts-surface *:focus {
+        outline: none !important;
+      }
+    `}</style>
+  );
+}
+
 const DEMO_DATA: Record<CareerId, SkillPoint[]> = {
   fullstack: [
     { skill: "HTML", "Skill Kamu": 3.0, "Standar Industri": 4.2 },
@@ -120,6 +138,7 @@ export default function SkillMapRadarPreview() {
 
   return (
     <div className="w-full min-w-0 overflow-hidden bg-white rounded-2xl border border-gray-200 shadow-md p-4 md:p-6">
+      <ChartFocusStyles />
       <div className="flex md:flex-wrap md:justify-center gap-1.5 mb-3 overflow-x-auto md:overflow-visible -mx-1 px-1 md:mx-0 md:px-0 pb-1 md:pb-0">
         {CAREERS.map((c) => (
           <button
